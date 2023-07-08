@@ -2,7 +2,7 @@
 .SYNOPSIS
 	"Windows 8.1 Setup Script" is a set of tweaks for OS fine-tuning and automating the routine tasks
 .DESCRIPTION
-	Supported Windows 8.1: 6.3.9600 build, x64
+	Supported Windows 8.1: 6.3.9600 build
 
 	Tested on Home/Pro/Enterprise editions
 
@@ -49,44 +49,6 @@ Clear-Host
 if ($PSUICulture -eq "ru-RU")
 {
 	$RU = $true
-}
-
-# Detect the OS bitness
-# Определить разрядность ОС
-switch ([Environment]::Is64BitOperatingSystem)
-{
-	$false
-	{
-		if ($RU)
-		{
-			Write-Warning -Message "Скрипт поддерживает только Windows 10 x64"
-		}
-		else
-		{
-			Write-Warning -Message "The script supports Windows 10 x64 only"
-		}
-		break
-	}
-	Default {}
-}
-
-# Detect the PowerShell bitness
-# Определить разрядность PowerShell
-switch ([IntPtr]::Size -eq 8)
-{
-	$false
-	{
-		if ($RU)
-		{
-			Write-Warning -Message "Скрипт поддерживает только PowerShell x64"
-		}
-		else
-		{
-			Write-Warning -Message "The script supports PowerShell x64 only"
-		}
-		break
-	}
-	Default {}
 }
 
 # Detect whether the script is running via PowerShell ISE
@@ -551,7 +513,7 @@ else
 
 # Use latest installed .NET runtime for all apps
 # Использовать последнюю установленную версию .NET для всех приложенийNew-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\.NETFramework -Name OnlyUseLatestCLR -PropertyType DWord -Value 1 -Force
-New-ItemProperty -Path HKLM:\SOFTWARE\Wow6432Node\Microsoft\.NETFramework -Name OnlyUseLatestCLR -PropertyType DWord -Value 1 -Force
+New-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\.NETFramework -Name OnlyUseLatestCLR -PropertyType DWord -Value 1 -Force
 
 # Do not allow the computer (if device is not a laptop) to turn off the network adapters to save power
 # Запретить отключение сетевых адаптеров для экономии энергии (если устройство не является ноутбуком)
@@ -1119,14 +1081,6 @@ switch ($Result)
 	}
 }
 
-# Turn off Help page opening by F1 key
-# Отключить открытие справки по нажатию F1
-if (-not (Test-Path -Path "HKCU:\Software\Classes\Typelib\{8cec5860-07a1-11d9-b15e-000d56bfe6ee}\1.0\0\win64"))
-{
-	New-Item -Path "HKCU:\Software\Classes\Typelib\{8cec5860-07a1-11d9-b15e-000d56bfe6ee}\1.0\0\win64" -Force
-}
-New-ItemProperty -Path "HKCU:\Software\Classes\Typelib\{8cec5860-07a1-11d9-b15e-000d56bfe6ee}\1.0\0\win64" -Name "(Default)" -PropertyType String -Value "" -Force
-
 # Turn on Num Lock at startup
 # Включить Num Lock при загрузке
 New-ItemProperty -Path "Registry::HKEY_USERS\.DEFAULT\Control Panel\Keyboard" -Name InitialKeyboardIndicators -PropertyType String -Value 2147483650 -Force
@@ -1142,7 +1096,6 @@ New-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\
 # Turn off thumbnail cache removal
 # Отключить удаление кэша миниатюр
 New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Thumbnail Cache" -Name Autorun -PropertyType DWord -Value 0 -Force
-New-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Thumbnail Cache" -Name Autorun -PropertyType DWord -Value 0 -Force
 
 # Turn on network discovery and file and printers sharing if device is not domain-joined
 # Включить сетевое обнаружение и общий доступ к файлам и принтерам, если устройство не присоединенно к домену
